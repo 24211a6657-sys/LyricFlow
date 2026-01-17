@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LyricFlow - Create Lyrical Videos</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .container { background: white; border-radius: 20px; padding: 40px; max-width: 600px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        h1 { color: #667eea; margin-bottom: 10px; font-size: 2.5em; text-align: center; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
+        input[type="text"], textarea, select { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; transition: border 0.3s; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: #667eea; }
+        textarea { resize: vertical; min-height: 120px; font-family: inherit; }
+        .style-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .style-option { padding: 15px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.3s; }
+        .style-option:hover { border-color: #667eea; transform: translateY(-2px); }
+        .style-option.selected { border-color: #667eea; background: #f0f4ff; }
+        .btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: 600; cursor: pointer; transition: transform 0.2s; }
+        .btn:hover { transform: scale(1.02); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .info-box { background: #f0f4ff; border-left: 4px solid #667eea; padding: 15px; border-radius: 8px; margin: 20px 0; }
+        .github-link { text-align: center; margin-top: 20px; }
+        .github-link a { color: #667eea; text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 LyricFlow</h1>
+        <p class="subtitle">Turn your songs into stunning lyrical videos</p>
+        
+        <div class="info-box">
+            <strong>⚠️ Demo Mode</strong><br>
+            Backend deployment pending. This demonstrates the UI. To test locally:
+            <code style="display:block; margin-top:10px; padding:10px; background:#fff; border-radius:4px;">
+                cd backend && pip install -r requirements.txt && uvicorn main:app --reload
+            </code>
+        </div>
+
+        <form id="videoForm">
+            <div class="form-group">
+                <label>Song Title</label>
+                <input type="text" id="songTitle" placeholder="Enter song title" required>
+            </div>
+
+            <div class="form-group">
+                <label>Lyrics (one line per line)</label>
+                <textarea id="lyrics" placeholder="Enter lyrics here...\nLine by line\nFor your song" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Choose Style</label>
+                <div class="style-grid">
+                    <div class="style-option selected" data-style="aesthetic">
+                        <div>🌸 Aesthetic</div>
+                        <small>Pastel & Soft</small>
+                    </div>
+                    <div class="style-option" data-style="elegant">
+                        <div>✨ Elegant</div>
+                        <small>Black & Gold</small>
+                    </div>
+                    <div class="style-option" data-style="bold">
+                        <div>🔥 Bold</div>
+                        <small>Red & White</small>
+                    </div>
+                    <div class="style-option" data-style="dark">
+                        <div>🌙 Dark</div>
+                        <small>Navy & Cyan</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Platform Format</label>
+                <select id="platform" required>
+                    <option value="reels">Instagram Reels (9:16)</option>
+                    <option value="shorts">YouTube Shorts (9:16)</option>
+                    <option value="tiktok">TikTok (9:16)</option>
+                    <option value="square">Square (1:1)</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn" id="generateBtn">
+                🎥 Generate Video
+            </button>
+        </form>
+
+        <div class="github-link">
+            <a href="https://github.com/24211a6657-sys/LyricFlow" target="_blank">👨‍💻 View on GitHub</a>
+        </div>
+    </div>
+
+    <script>
+        let selectedStyle = 'aesthetic';
+        
+        // Style selection
+        document.querySelectorAll('.style-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.style-option').forEach(o => o.classList.remove('selected'));
+                option.classList.add('selected');
+                selectedStyle = option.dataset.style;
+            });
+        });
+
+        // Form submission
+        document.getElementById('videoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('generateBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳ Generating...';
+            btn.disabled = true;
+
+            const data = {
+                songTitle: document.getElementById('songTitle').value,
+                lyrics: document.getElementById('lyrics').value.split('\n'),
+                style: selectedStyle,
+                platform: document.getElementById('platform').value
+            };
+
+            // Demo: Show alert with config
+            setTimeout(() => {
+                alert(`🎬 Video Configuration:\n\nTitle: ${data.songTitle}\nStyle: ${data.style}\nPlatform: ${data.platform}\nLines: ${data.lyrics.length}\n\nBackend API needed for actual generation.\nSee DEPLOYMENT_STATUS.md for setup instructions.`);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 1500);
+
+            // Uncomment when backend is live:
+            /*
+            try {
+                const response = await fetch('YOUR_BACKEND_URL/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                // Handle success
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+            */
+        });
+    </script>
+</body>
+</html>
